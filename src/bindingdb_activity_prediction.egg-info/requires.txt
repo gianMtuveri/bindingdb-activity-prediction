@@ -1,0 +1,14 @@
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.5
+pyarrow>=15.0
+PyYAML>=6.0
+matplotlib>=3.8
+scipy>=1.12
+rdkit
+
+[dev]
+pytest>=8.0
+black>=24.0
+ruff>=0.3
+ipykernel>=6.29

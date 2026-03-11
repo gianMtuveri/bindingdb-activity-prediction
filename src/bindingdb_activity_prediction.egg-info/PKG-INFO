@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: bindingdb-activity-prediction
+Version: 0.1.0
+Summary: Reproducible baseline ML pipeline for target-specific molecular activity prediction from BindingDB-refined data.
+Author: Gian Marco Tuveri
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26
+Requires-Dist: pandas>=2.2
+Requires-Dist: scikit-learn>=1.5
+Requires-Dist: pyarrow>=15.0
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: matplotlib>=3.8
+Requires-Dist: scipy>=1.12
+Requires-Dist: rdkit
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: black>=24.0; extra == "dev"
+Requires-Dist: ruff>=0.3; extra == "dev"
+Requires-Dist: ipykernel>=6.29; extra == "dev"

@@ -1,0 +1,12 @@
+pyproject.toml
+src/bindingdb_activity_prediction/__init__.py
+src/bindingdb_activity_prediction/data.py
+src/bindingdb_activity_prediction/evaluation.py
+src/bindingdb_activity_prediction/featurization.py
+src/bindingdb_activity_prediction/models.py
+src/bindingdb_activity_prediction/splits.py
+src/bindingdb_activity_prediction.egg-info/PKG-INFO
+src/bindingdb_activity_prediction.egg-info/SOURCES.txt
+src/bindingdb_activity_prediction.egg-info/dependency_links.txt
+src/bindingdb_activity_prediction.egg-info/requires.txt
+src/bindingdb_activity_prediction.egg-info/top_level.txt

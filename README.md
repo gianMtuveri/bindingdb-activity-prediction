@@ -1,359 +1,294 @@
-# BindingDB Molecular Activity Prediction Benchmark
+# BindingDB Activity Prediction
 
-A reproducible machine learning pipeline for predicting molecular activity from chemical structure using curated **BindingDB** data.
+A reproducible machine learning pipeline for predicting molecular activity from chemical structure using BindingDB data.
 
-This project demonstrates an end-to-end cheminformatics ML workflow including:
+This project demonstrates how to build a clean and scientifically responsible molecular ML workflow, from raw biochemical data to evaluated predictive models.
 
-- dataset preparation
-- molecular featurization
-- baseline model benchmarking
-- realistic evaluation using scaffold splits
-
-The goal is **not to chase the most complex model**, but to build a **clean and scientifically sound benchmark pipeline**.
-
----
-
-# Motivation
-
-Predicting molecular activity from chemical structure is a central problem in drug discovery and cheminformatics.
-
-However, many simple ML benchmarks produce **over-optimistic results** because they rely on **random train/test splits**, which allow highly similar molecules to appear in both sets.
-
-This project explicitly compares:
-
-- **Random split** (naïve evaluation)
-- **Bemis–Murcko scaffold split** (chemically realistic evaluation)
-
-Scaffold splitting prevents chemical series from leaking between train and test sets, providing a more realistic estimate of model generalization.
-
----
-
-# Dataset
-
-The dataset is derived from **BindingDB** and processed using the companion project:
-
-https://github.com/gianMtuveri/binding_db_refiner
-
-The preprocessing pipeline:
-
-1. Select affinity measurements with priority  
-   `Ki → Kd → IC50`
-
-2. Convert values to numeric nM
-
-3. Remove invalid entries
-
-4. Compute binding free energy ΔG
-
-5. Aggregate repeated measurements
-
-For this benchmark we focus on a single target:
-
-**EGFR — Epidermal Growth Factor Receptor**
-
-The dataset is converted into a binary activity classification task.
+The focus is not on complex models, but on **data quality, reproducibility, and realistic evaluation strategies** for cheminformatics tasks.
 
 ---
 
 # Project Overview
 
-The project implements a reproducible ML pipeline:
+Drug discovery datasets often contain many structurally related molecules.  
+Naive evaluation strategies can therefore overestimate model performance.
 
-dataset → cleaning → featurization → baseline models → evaluation
+This project builds a pipeline that:
 
-Pipeline steps:
+- processes BindingDB data
+- constructs a clean EGFR activity dataset
+- featurizes molecules from SMILES
+- trains baseline machine learning models
+- evaluates models using both **random splits and scaffold splits**
+- visualizes chemical space and model performance
 
-1. Load processed BindingDB dataset
-2. Extract canonical SMILES
-3. Generate molecular fingerprints
-4. Split dataset
-5. Train baseline models
-6. Evaluate predictions
+The repository is designed to resemble a **small research-grade ML package**, not a collection of notebooks.
+
+---
+
+# Dataset
+
+The dataset is derived from **BindingDB**, a public database of experimentally measured protein–ligand binding affinities.
+
+Target used in this project:
+
+EGFR (Epidermal Growth Factor Receptor)
+
+Processing steps:
+
+1. Filter entries for the EGFR target  
+2. Canonicalize SMILES using RDKit  
+3. Aggregate affinity measurements  
+4. Convert affinity values into binary activity labels  
+
+Labeling scheme:
+
+Active: affinity ≤ 1000 nM  
+Inactive: affinity ≥ 10000 nM  
+
+Ambiguous values are removed.
+
+Final dataset statistics:
+
+Total molecules: 750  
+Unique scaffolds: 207  
+Largest scaffold family: ~15% of dataset  
+
+---
+
+# Pipeline
+
+```
+BindingDB raw data
+        │
+        ▼
+dataset cleaning
+        │
+        ▼
+SMILES canonicalization
+        │
+        ▼
+Morgan fingerprint featurization
+        │
+        ▼
+dataset splitting
+        │
+        ▼
+model training
+        │
+        ▼
+evaluation and visualization
+```
 
 ---
 
 # Molecular Representation
 
-Molecules are represented using **Morgan fingerprints** (circular fingerprints).
+Molecules are encoded using **Morgan fingerprints** (circular fingerprints) generated with RDKit.
 
-Parameters:
+Configuration:
 
-- radius = 2
-- fingerprint size = 2048 bits
+radius = 2  
+n_bits = 2048  
 
-Implementation uses **RDKit**.
+These fingerprints capture local chemical environments around atoms and are widely used in cheminformatics.
 
 ---
 
 # Models
 
-Three baseline models are included:
+The project implements simple but strong baseline models.
 
-- Logistic Regression
-- Random Forest
-- Gradient Boosting
+| Model | Type |
+|------|------|
+| Logistic Regression | Linear classifier |
+| Random Forest | Nonlinear ensemble |
+| Gradient Boosting | Boosted decision trees |
 
-These models were chosen because they provide strong classical baselines and are widely used in cheminformatics.
-
-Deep learning models are intentionally **not included in the first version** to maintain a clear baseline benchmark.
-
----
-
-# Evaluation Metrics
-
-Model performance is evaluated using:
-
-- Accuracy
-- Balanced Accuracy
-- Precision
-- Recall
-- F1 Score
-- ROC-AUC
-- PR-AUC
-
-Balanced accuracy and PR-AUC are particularly important due to potential class imbalance.
-
-Confusion matrices are also printed to inspect prediction behavior.
+The goal is to establish a **reliable baseline benchmark** before introducing more complex models.
 
 ---
 
-# Data Splitting Strategies
+# Evaluation Strategy
 
-Two evaluation strategies are implemented.
+Two dataset splitting strategies are compared.
 
 ## Random Split
 
-Standard stratified random split using:
+Randomly splits molecules into training and test sets.
 
-train_test_split(..., stratify=y)
+Train and test often contain structurally similar molecules.
 
-This often produces optimistic performance because chemically similar molecules may appear in both train and test sets.
+This typically produces **optimistic performance estimates**.
 
 ---
 
 ## Scaffold Split
 
-Scaffold splitting groups molecules by their **Bemis–Murcko scaffold** and assigns entire scaffold families to either train or test sets.
+Uses **Bemis–Murcko scaffolds** to separate chemical families.
 
-This prevents chemical series leakage and simulates a more realistic scenario where models must generalize to **new chemotypes**.
+Train and test sets contain **different molecular scaffolds**.
 
-Scaffolds are computed using:
-
-rdkit.Chem.Scaffolds.MurckoScaffold
+This provides a more realistic evaluation of model generalization to new chemotypes.
 
 ---
 
-# Project Structure
+# Results
 
-```
-src/
-    bindingdb_activity_prediction/
-        data.py
-        featurization.py
-        models.py
-        evaluation.py
-        splits.py
+## ROC Curves
 
-scripts/
-    train.py
+### Random Split
 
-data/
-    processed/
+![ROC Random](results/figures/egfr_roc_random.png)
 
-results/
-    metrics/
-```
+### Scaffold Split
 
-### src/
+![ROC Scaffold](results/figures/egfr_roc_scaffold.png)
 
-Contains reusable pipeline components:
+Random split performance is near-perfect due to structural similarity between train and test molecules.
 
-- dataset loading
-- fingerprint generation
-- model definitions
-- evaluation metrics
-- splitting strategies
-
-### scripts/
-
-Contains executable experiment scripts.
-
-### results/
-
-Stores benchmark outputs.
+Scaffold split provides a more challenging and realistic benchmark.
 
 ---
 
-# Running the Benchmark
+## Precision–Recall Curves
 
-Clone the repository and install dependencies:
+### Random Split
+
+![PR Random](results/figures/egfr_pr_random.png)
+
+### Scaffold Split
+
+![PR Scaffold](results/figures/egfr_pr_scaffold.png)
+
+---
+
+# Chemical Space Visualization
+
+Principal Component Analysis (PCA) was applied to Morgan fingerprints to visualize the distribution of molecules in chemical space.
+
+![Chemical Space](results/figures/chemical_space_pca.png)
+
+Observations:
+
+- active molecules occupy a broader region of chemical space
+- inactive molecules cluster more tightly
+- there is partial overlap between the two classes
+
+---
+
+# Scaffold Analysis
+
+The dataset contains many scaffold families with uneven sizes.
+
+Example statistics:
+
+Average scaffold size: 3.62  
+Median scaffold size: 1  
+Largest scaffold fraction: 0.155  
+
+Scaffold distribution:
+
+![Scaffold Distribution](results/figures/scaffold_distribution.png)
+
+---
+
+# Repository Structure
+
+```
+bindingdb-activity-prediction
+│
+├── configs
+├── data
+│   ├── raw
+│   └── processed
+│
+├── notebooks
+│
+├── results
+│   ├── figures
+│   └── metrics
+│
+├── scripts
+│   ├── build_egfr_dataset.py
+│   ├── train.py
+│   ├── compare_models.py
+│   ├── analyze_scaffold.py
+│
+└── src/bindingdb_activity_prediction
+    ├── data.py
+    ├── dataset.py
+    ├── evaluation.py
+    ├── featurization.py
+    ├── models.py
+    ├── plotting.py
+    └── splits.py
+```
+
+The codebase separates:
+
+- reusable logic (`src`)
+- experiments (`scripts`)
+- outputs (`results`)
+
+---
+
+# Reproducibility
+
+Install the project locally:
 
 ```
 pip install -e .
 ```
 
-Then run:
+Example run:
 
 ```
 python scripts/train.py
 ```
 
-Inside the script you can choose the split type:
-
-```
-SPLIT_TYPE = "random"
-SPLIT_TYPE = "scaffold"
-```
-
-Results are saved to:
-
-```
-results/metrics/
-```
-
-Example outputs:
-
-```
-egfr_results_random.csv
-egfr_results_scaffold.csv
-```
-
----
-
-# Example Output
-
-Each run produces a metrics table:
-
-| model | split_type | accuracy | balanced_accuracy | roc_auc | pr_auc |
-|------|-------------|----------|-------------------|--------|--------|
-| logistic_regression | scaffold | ... | ... | ... | ... |
-| random_forest | scaffold | ... | ... | ... | ... |
-| gradient_boosting | scaffold | ... | ... | ... | ... |
-
----
-
-# Key Observation
-
-Random splits typically produce higher scores because similar molecules appear in both training and test sets.
-
-Scaffold splits provide a **more challenging and realistic evaluation**, often resulting in lower but more meaningful performance estimates.
-
----
-
-## Scaffold Analysis
-
-The EGFR benchmark contains 750 molecules distributed across 207 Bemis–Murcko scaffolds.
-
-Scaffold diversity is highly skewed:
-
-- average scaffold size: 3.62 molecules
-- median scaffold size: 1 molecule
-- largest scaffold family: 15.5% of the dataset
-
-This indicates a dataset composed of many singleton scaffolds together with a few large medicinal chemistry series. As a result, scaffold-based splitting provides a substantially more realistic evaluation of generalization than a random split.
-
----
-
-## Chemical Space Visualization
-
-A PCA projection of Morgan fingerprints shows that active and inactive EGFR ligands occupy partially distinct regions of chemical space. Inactive molecules are concentrated in a narrower region, while active molecules span a broader and more heterogeneous distribution. This supports the idea that fingerprint-based models capture meaningful structure–activity signal, while also highlighting overlap between chemotypes that makes the task non-trivial.
+Plots and metrics can be regenerated using the scripts provided in the repository.
 
 ---
 
 # Limitations
 
-This project intentionally focuses on simplicity and reproducibility, which introduces several limitations.
+This project intentionally focuses on baseline methodology.
 
-### Single target
+Current limitations include:
 
-The benchmark currently uses only **EGFR**.  
-Results may not generalize to other targets.
-
-### Single molecular representation
-
-Only Morgan fingerprints are used.  
-Other descriptors or learned representations may improve performance.
-
-### No hyperparameter tuning
-
-Models use mostly default parameters.  
-Performance could improve with systematic optimization.
-
-### Binary activity classification
-
-The dataset is simplified to a binary task.  
-Real drug discovery problems often require regression or multi-task models.
-
-### No uncertainty estimation
-
-Predictions currently do not include uncertainty or confidence intervals.
-
-### Dataset bias
-
-BindingDB contains experimental bias and uneven chemical space coverage.
+- single protein target (EGFR)
+- relatively small dataset
+- Morgan fingerprints only
+- limited hyperparameter tuning
+- classical ML models only
+- no uncertainty estimation
 
 ---
 
 # Future Work
 
-Potential extensions include:
+Possible extensions include:
 
-### Dataset expansion
-
-- additional targets
-- multi-target prediction
-- multi-task learning
-
-### Alternative representations
-
-- RDKit descriptors
-- physicochemical descriptors
-- learned graph embeddings
-
-### Deep learning models
-
-- graph neural networks
-- message passing neural networks
-
-### Improved evaluation
-
-- scaffold distribution analysis
-- cluster split strategies
-- time-based splits if timestamps are available
-
-### Model calibration
-
-- probability calibration
-- uncertainty estimation
-- bootstrap confidence intervals
-
-### Visualization
-
-- scaffold size distributions
-- chemical space projections
-- prediction error analysis
-
-### Deployment
-
-- model inference API
-- web interface for molecular prediction
+- RDKit molecular descriptor representation
+- scaffold-aware cross-validation
+- feature importance analysis
+- uncertainty estimation via bootstrapping
+- graph neural network models
+- multi-target modeling
+- model explainability (SHAP)
 
 ---
 
-# Related Project
+# Project Goal
 
-Dataset preprocessing:
+This repository demonstrates how to build a **clean, reproducible molecular ML pipeline** that emphasizes:
 
-BindingDB Refiner
+- scientific rigor  
+- realistic evaluation strategies  
+- interpretable baseline models  
 
-https://github.com/gianMtuveri/binding_db_refiner
-
----
-
-# License
-
-MIT License
-
+rather than simply maximizing predictive performance.
 ---
 
 # Author

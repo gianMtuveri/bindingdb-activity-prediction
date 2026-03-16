@@ -240,6 +240,20 @@ Scaffold splits provide a **more challenging and realistic evaluation**, often r
 
 ---
 
+## Scaffold Analysis
+
+The EGFR benchmark contains 750 molecules distributed across 207 Bemis–Murcko scaffolds.
+
+Scaffold diversity is highly skewed:
+
+- average scaffold size: 3.62 molecules
+- median scaffold size: 1 molecule
+- largest scaffold family: 15.5% of the dataset
+
+This indicates a dataset composed of many singleton scaffolds together with a few large medicinal chemistry series. As a result, scaffold-based splitting provides a substantially more realistic evaluation of generalization than a random split.
+
+---
+
 # Limitations
 
 This project intentionally focuses on simplicity and reproducibility, which introduces several limitations.

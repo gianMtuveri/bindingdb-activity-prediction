@@ -15,6 +15,7 @@ data/processed/*
 !data/processed/.gitkeep
 
 results/*
-!results/.gitkeep
-!results/figures/.gitkeep
-!results/metrics/.gitkeep
+!results/figures/
+!results/figures/*
+!results/metrics/
+!results/metrics/*

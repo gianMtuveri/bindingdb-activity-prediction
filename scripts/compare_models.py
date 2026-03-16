@@ -67,13 +67,18 @@ def compute_metrics(y_true, y_pred, y_score) -> dict:
 
 def get_models():
     return {
-        "logistic_regression": LogisticRegression(max_iter=2000, random_state=RANDOM_SEED),
+        "logistic_regression": LogisticRegression(
+            max_iter=2000, 
+            random_state=RANDOM_SEED
+        ),
         "random_forest": RandomForestClassifier(
             n_estimators=300,
             random_state=RANDOM_SEED,
             n_jobs=-1,
         ),
-        "gradient_boosting": GradientBoostingClassifier(random_state=RANDOM_SEED),
+        "gradient_boosting": GradientBoostingClassifier(
+            random_state=RANDOM_SEED
+        ),
     }
 
 

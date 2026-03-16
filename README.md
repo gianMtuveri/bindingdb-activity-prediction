@@ -254,6 +254,12 @@ This indicates a dataset composed of many singleton scaffolds together with a fe
 
 ---
 
+## Chemical Space Visualization
+
+A PCA projection of Morgan fingerprints shows that active and inactive EGFR ligands occupy partially distinct regions of chemical space. Inactive molecules are concentrated in a narrower region, while active molecules span a broader and more heterogeneous distribution. This supports the idea that fingerprint-based models capture meaningful structure–activity signal, while also highlighting overlap between chemotypes that makes the task non-trivial.
+
+---
+
 # Limitations
 
 This project intentionally focuses on simplicity and reproducibility, which introduces several limitations.
